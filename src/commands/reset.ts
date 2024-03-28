@@ -1,7 +1,7 @@
 import { Command, type ChatInputCommand } from '@sapphire/framework'
 import { guildCtxManager } from '../index.js'
 import { PermissionFlagsBits, type InteractionReplyOptions } from 'discord.js'
-import { getErrorReply } from '../utils.js'
+import { deferredReplyOrEdit, getErrorReply } from '../utils.js'
 
 export class ResetCommand extends Command {
   public constructor(
@@ -26,8 +26,11 @@ export class ResetCommand extends Command {
         .setDMPermission(false),
     )
   }
-  public override chatInputRun(interaction: ChatInputCommand.Interaction) {
+  public override async chatInputRun(
+    interaction: ChatInputCommand.Interaction,
+  ) {
     if (!interaction.inCachedGuild()) return
+    await interaction.deferReply()
 
     let interactionReplyOptions: InteractionReplyOptions = {
       embeds: [
@@ -53,7 +56,7 @@ export class ResetCommand extends Command {
       interactionReplyOptions = getErrorReply(error)
       console.error(error)
     } finally {
-      return interaction.reply(interactionReplyOptions)
+      return deferredReplyOrEdit(interaction, interactionReplyOptions)
     }
   }
 }

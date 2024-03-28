@@ -2,7 +2,10 @@ import debug from 'debug'
 const debug__Queue = debug('utils.js:Queue')
 import { EventEmitter } from 'events'
 import type { UserSetting } from './db.js'
-import type { InteractionReplyOptions } from 'discord.js'
+import type {
+  ChatInputCommandInteraction,
+  InteractionReplyOptions,
+} from 'discord.js'
 import { PowError } from './errors/PowError.js'
 
 export function getProperty<T, K extends keyof T>(property: K) {
@@ -92,4 +95,13 @@ export const getErrorReply = (error: unknown): InteractionReplyOptions => {
   } else {
     throw error
   }
+}
+
+export const deferredReplyOrEdit = (
+  interaction: ChatInputCommandInteraction,
+  replyOptions: InteractionReplyOptions,
+) => {
+  return interaction.deferred
+    ? interaction.editReply(replyOptions)
+    : interaction.reply(replyOptions)
 }

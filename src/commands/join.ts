@@ -3,7 +3,7 @@ import { guildCtxManager } from '../index.js'
 import { type InteractionReplyOptions } from 'discord.js'
 import { checkCanJoin, checkUserAlreadyJoined } from '../components/preCheck.js'
 import { newGuildTextBasedChannelId, newVoiceBasedChannelId } from '../id.js'
-import { getErrorReply } from '../utils.js'
+import { deferredReplyOrEdit, getErrorReply } from '../utils.js'
 
 export class JoinCommand extends Command {
   public constructor(
@@ -47,6 +47,8 @@ export class JoinCommand extends Command {
       checkUserAlreadyJoined(voiceChannel)
       checkCanJoin(voiceChannel)
 
+      await interaction.deferReply()
+
       const guildCtx = guildCtxManager.get(interaction.member.guild)
 
       const worker = await guildCtx.join({
@@ -73,7 +75,7 @@ export class JoinCommand extends Command {
       interactionReplyOptions = getErrorReply(error)
       console.error(error)
     } finally {
-      return interaction.reply(interactionReplyOptions)
+      return deferredReplyOrEdit(interaction, interactionReplyOptions)
     }
   }
 }
